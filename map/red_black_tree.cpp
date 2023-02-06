@@ -1,4 +1,6 @@
 #include <iostream>
+#include <stdexcept>
+#include <map>
 
 #define RED 	1
 #define BLACK	2
@@ -11,8 +13,6 @@ struct Node {
 	Node	*left;
 	Node	*right;
 	int		red_black;
-	
-	// const static Node	*nil = new Node();
 
 	Node(_pair pair) : value(pair), parent(NULL), left(NULL), right(NULL), red_black(RED) //일반 insert때의 노드 생성
 	{}
@@ -22,40 +22,47 @@ struct Node {
 	
 };
 
-template<typename _pair, typename Compare = std::less<_pair> >
+template<typename Key, typename Value, typename Compare = std::less<Key>, 
+typename Allocator = std::allocator<std::pair<const Key, Value> > >
 class RB_tree{
 	private:
+		size_t	_size;
 
 	public:
-	typedef	_pair		value_type;
-	typedef	_pair&		reference;
-	typedef	Node<_pair>	node_type;
-	typedef	node_type*	node_pointer;
+	typedef	Key									key_type;
+	typedef	Value								mapped_type;
+	typedef	std::pair<const Key, Value>			value_type;
+	typedef	value_type&							reference;
+	typedef	typename Allocator::size_type		size_type;
+	typedef	Node<value_type>					node_type;
+	typedef	node_type*							node_pointer;
 	
-	Node<_pair>	*root;
-	Node<_pair>	*insert_temp;
-	Node<_pair>	*nil;
+	Node<value_type>	*root;
+	Node<value_type>	*insert_temp;
+	Node<value_type>	*nil;
 
 	RB_tree() : root(NULL), insert_temp(NULL)
 	{
-		nil = new Node<_pair>;
+		nil = new Node<value_type>;
+		_size = 0;
 	}
 
-	Node<_pair>* create_new_node(_pair pair)
+	Node<value_type>* create_new_node(value_type pair)
 	{
-		Node<_pair>	*ret = new Node<_pair>(pair);
+		Node<value_type>	*ret = new Node<value_type>(pair);
 		ret->left = nil;
 		ret->right = nil;
 		return (ret);
 	}
 
-	void	insert_node(_pair pair)
+	void	insert_node(value_type pair)
 	{
-		if (root == NULL) //root node 설정. (지금은 안쓰이는 형태..)
+		if (root == NULL)
 		{
 			root = create_new_node(pair);
 			root->red_black = BLACK;
 			insert_temp = root;
+			_size++;
 		}
 		else if (pair.first < insert_temp->value.first)
 		{
@@ -65,6 +72,7 @@ class RB_tree{
 				insert_temp->left->parent = insert_temp;
 				red_black_check(insert_temp->left);
 				insert_temp = root;
+				_size++;
 			}
 			else
 			{
@@ -80,6 +88,7 @@ class RB_tree{
 				insert_temp->right->parent = insert_temp;
 				red_black_check(insert_temp->right);
 				insert_temp = root;
+				_size++;
 			}
 			else
 			{
@@ -91,7 +100,7 @@ class RB_tree{
 			insert_temp = root;
 	}
 
-	void	inored_node(Node<_pair> *root)
+	void	inored_node(Node<value_type> *root)
 	{
 		if (root == NULL || root == nil)
 			return ;
@@ -100,10 +109,15 @@ class RB_tree{
 		inored_node(root->right);
 	}
 
-	void	left_rotate(Node<_pair> *node)
+	void	print_tree()
 	{
-		Node<_pair>	*temp_parent;
-		Node<_pair>	*node_left;
+		inored_node(root);
+	}
+
+	void	left_rotate(Node<value_type> *node)
+	{
+		Node<value_type>	*temp_parent;
+		Node<value_type>	*node_left;
 
 		node_left = node->left;  //node->left save
 		temp_parent = node->parent->parent; //parent->parent save
@@ -124,10 +138,10 @@ class RB_tree{
 		}
 	}
 
-	void	right_rotate(Node<_pair> *node)
+	void	right_rotate(Node<value_type> *node)
 	{
-		Node<_pair>	*temp_parent;
-		Node<_pair>	*node_right;
+		Node<value_type>	*temp_parent;
+		Node<value_type>	*node_right;
 
 
 		node_right = node->right; // 현재노드의 오른쪽 저장
@@ -150,7 +164,7 @@ class RB_tree{
 		}
 	}
 
-	void	red_black_check(Node<_pair> *node)
+	void	red_black_check(Node<value_type> *node)
 	{
 		if (node->parent == NULL) //node is root
 		{
@@ -163,8 +177,8 @@ class RB_tree{
 		{
 			if (node->parent == node->parent->parent->left) //현재노드가 부모의 왼쪽기준일 때
 			{
-				Node<_pair>	*node_parent = node->parent;
-				Node<_pair>	*node_grand_parent = node->parent->parent;
+				Node<value_type>	*node_parent = node->parent;
+				Node<value_type>	*node_grand_parent = node->parent->parent;
 
 				if (node_parent->red_black == RED && node_grand_parent->right->red_black == RED)// 부모, 자식, 삼촌노드도 red 일 때.
 				{
@@ -188,8 +202,8 @@ class RB_tree{
 			}
 			else //현재 노드가 부모의 오른쪽기준일 때
 			{
-				Node<_pair>	*node_parent = node->parent;
-				Node<_pair>	*node_grand_parent = node->parent->parent;
+				Node<value_type>	*node_parent = node->parent;
+				Node<value_type>	*node_grand_parent = node->parent->parent;
 
 				if (node_parent->red_black == RED && node_grand_parent->left->red_black == RED)// 부모, 자식, 삼촌노드도 red 일 때.
 				{
@@ -213,34 +227,68 @@ class RB_tree{
 		}
 	}
 
-	
-	
+	bool	empty() const
+	{
+		if (root == NULL)
+			return (true);
+		else
+			return (false);
+	}
+
+	size_t	size() const{
+		return (_size);
+	}
+
+	Node<value_type>	*search_key(const Key& key)
+	{
+		Node<value_type>	*ret = root;
+
+		while (ret != nil || ret != NULL)
+		{
+			if (ret->value.first >key)
+				ret = ret->left;
+			else if (ret->value.first <key)
+				ret = ret->right;
+			else
+				return (ret);
+		}
+		return (nil);
+	}
+
+	Value	at(const Key& key)
+	{
+		Node<value_type>	*node = search_key(key);
+
+		if (node != nil)
+			return (node->value.second);
+		else
+			throw(std::out_of_range("Map"));
+	}
+
+	size_t	max_size()
+	{return (std::numeric_limits<size_type>::max() / sizeof(node_type));}
+
 
 };
 
 int	main(void)
 {
-	RB_tree<std::pair<int, std::string> >	rb_tree;
+	RB_tree<int, std::string>	rb_tree;
+	std::map<int, std::string>	map1;
 
+	std::cout << "empty: " << rb_tree.empty() << std::endl;
+	std::cout << "size: " << rb_tree.size() << std::endl;
 	rb_tree.insert_node(make_pair(1, (std::string)"1"));
 	rb_tree.insert_node(make_pair(2, (std::string)"2"));
 	rb_tree.insert_node(make_pair(5, (std::string)"5"));
-
-	// std::cout << rb_tree.root->red_black << std::endl;
-	// std::cout << rb_tree.root->left->red_black << std::endl;
-	// std::cout << rb_tree.root->right->red_black << std::endl;
-
-	// std::cout << rb_tree.root->value.second << std::endl;
-	// std::cout << rb_tree.root->value.second << std::endl;
-
 	rb_tree.insert_node(make_pair(4, (std::string)"4"));
-	rb_tree.insert_node(make_pair(3, (std::string)"3"));
 	rb_tree.insert_node(make_pair(3, (std::string)"3"));
 	rb_tree.insert_node(make_pair(6, (std::string)"6"));
 	rb_tree.insert_node(make_pair(8, (std::string)"8"));
 	rb_tree.insert_node(make_pair(7, (std::string)"7"));
 	rb_tree.insert_node(make_pair(10, (std::string)"10"));
 	rb_tree.insert_node(make_pair(11, (std::string)"11"));
+	rb_tree.insert_node(make_pair(9, (std::string)"9"));
 
 	// std::cout << rb_tree.root->value.second << std::endl;
 	// std::cout << rb_tree.root->right->value.second << std::endl;
@@ -250,6 +298,14 @@ int	main(void)
 	
 	// std::cout << rb_tree.root->left->value.second << std::endl;
 	// std::cout << rb_tree.root->right->value.second << std::endl;
-	rb_tree.inored_node(rb_tree.root);
+	// rb_tree.inored_node(rb_tree.root);
+	rb_tree.print_tree();
+
+	std::cout << "-----test-----" << std::endl;
+	std::cout << rb_tree.at(2) << std::endl;
+	std::cout << "empty: " << rb_tree.empty() << std::endl;
+	std::cout << "size: " << rb_tree.size() << std::endl;
+
 	// system("leaks a.out");
+	
 }
