@@ -26,7 +26,7 @@ int main(void)
 
     ft::vector<int> test_copy_construct(test1);
     ft::vector<int> test_iterator_construct(test1.begin(), test1.end());
-    ft::vector<int> test_size_construct((ft::vector<int>::size_type)3, 100);
+    ft::vector<int> test_size_construct(3, 100);
     
     // std::vector<int> test_size_construct(3, 1);
     // std::vector<int> test_copy_construct(test2);
