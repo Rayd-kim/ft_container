@@ -65,6 +65,7 @@
 		"__tree": "cpp",
 		"deque": "cpp",
 		"map": "cpp",
-		"stack": "cpp"
+		"stack": "cpp",
+		"__cxx_version": "cpp"
 	}
 }

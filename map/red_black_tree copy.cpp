@@ -16,20 +16,20 @@ struct Node {
 	Node(_pair pair) : value(pair), parent(NULL), left(NULL), right(NULL), red_black(RED) //일반 insert때의 노드 생성
 	{}
 
-	Node() : parent(NULL), left(NULL), right(NULL), red_black(BLACK)//leaf node(nil_node) 생성
+	Node() : parent(NULL), left(NULL), right(NULL), red_black(BLACK) //leaf node(nil_node) 생성
 	{}
 	
 };
 
-template<typename Key, typename Value, typename std::pair<const Key, Value>, typename Compare = std::less<Key> >
+template<typename _pair, typename Compare = std::less<_pair> >
 class RB_tree{
 	private:
 		size_t	_size;
 
 	public:
-	typedef	Key							key_type;
-	typedef	Value						mapped_type;
-	typedef	std::pair<const Key, Value>	value_type;
+	// typedef	_pair.first					key_type;
+	// typedef	_pair.second				mapped_type;
+	typedef	_pair						value_type;
 	typedef	value_type&					reference;
 	typedef	Node<value_type>			node_type;
 	typedef	node_type*					node_pointer;
@@ -234,7 +234,7 @@ class RB_tree{
 		{
 			if (root->value.first > pair.first)
 				ret = ret->left;
-			else if (root->value.frist < pair.first)
+			else if (root->value.first < pair.first)
 				ret = ret->right;
 			else
 				return (ret);
@@ -242,17 +242,28 @@ class RB_tree{
 		return (nil);
 	}
 
-	value_type	at(const _pair.first key)
+	value_type	at(const _pair pair)
 	{
-		Node<_pair>	*node = search_key(key);
-
-		if (node != nil)
-			return (node.second);
-		else
-			throw(std::out_of_range("map"));
+		return (get_value(pair.first));
 	}
 
 };
+
+
+template<typename Key, typename Value>
+Value	get_value(const Key& key)
+{
+	typedef std::pair<const Key, Value>	value_type;
+
+	Node<value_type>*	node = RB_tree<value_type>::search_key(key);
+
+	if (node != RB_tree<value_type>::nil)
+		return (node->value.second);
+	else
+		throw(std::out_of_range("map"));
+	
+
+}
 
 int	main(void)
 {
@@ -279,5 +290,7 @@ int	main(void)
 	// std::cout << rb_tree.root->left->value.second << std::endl;
 	// std::cout << rb_tree.root->right->value.second << std::endl;
 	rb_tree.inored_node(rb_tree.root);
+	std::cout << "--at--" << std::endl;
+	std::cout << rb_tree.at(10) <<std::endl;
 	// system("leaks a.out");
 }

@@ -3,7 +3,6 @@
 
 #include <iostream>
 
-
 namespace ft{
 
 template< typename Key, typename T, typename Compare = std::less<Key>,
@@ -60,7 +59,7 @@ class map{
 
 	iterator erase(itertor pos);
 	iterator erase(iterator first, iterator last);
-	size_type erase(const Key7 key); // Removes the element(if one exists) with the key equivalent to key.
+	size_type erase(const Key& key); // Removes the element(if one exists) with the key equivalent to key.
 
 	void swap(map& other);	
 	size_type count(const Key& key) const; //key에 해당하는 값이 몇개있는지. 0 or 1 중 하나임(중복을 허용하지 않기 때문에)
@@ -77,11 +76,6 @@ class map{
 	const_iterator upper_bound(const Key& key) const;
 	
 	class value_compare{
-		public:
-		typedef bool		result_type;
-		typedef value_type	first_argument_type;
-		typedef value_type	second_argument_type;
-
 		protected:
 			Compare comp;
 			value_compare(Compare c) : comp(c) {}

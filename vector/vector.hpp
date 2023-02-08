@@ -1,5 +1,5 @@
-#ifndef VECTOR_TEST
-#define VECTOR_TEST
+#ifndef VECTOR_HPP
+#define VECTOR_HPP
 
 #include <iostream>
 #include <memory>
@@ -18,7 +18,9 @@ namespace ft
 			typedef typename std::allocator<T>::const_pointer		const_pointer;
 			typedef	typename std::allocator<T>::difference_type		difference_type;
 			typedef	typename std::allocator<T>::size_type			size_type;
-			typedef	value_type&										const_reference;
+			typedef	const value_type&								const_reference;
+			typedef	typename Alloc::pointer							iterator;
+			typedef typename Alloc::const_pointer					const_iterator;
 
 		private:
 			T* 			_data;
@@ -60,10 +62,8 @@ namespace ft
 
 			size_type	size(); //vector의 크기 (vector에 할당된 크기가 아닌 데이터가 저장된 크기)
 			size_type	capacity();
-
 			size_type	max_size() const
 			{	return (std::numeric_limits<size_type>::max() / sizeof(value_type));	}
-
 			void	reserve(size_type new_cap)
 			{
 				if (new_cap > max_size())
@@ -82,15 +82,14 @@ namespace ft
 					_capacity = new_cap;
 				}
 			}
-
 			bool	empty();
-
 			void	clear()
 			{
 				for (; _length > 0; _length--)
 					alloc.destroy(&_data[_length - 1]);
 			}
 
+			/*
 			class	iterator{
 			private:
 				vector<T>*	_vec;
@@ -130,12 +129,40 @@ namespace ft
 				pointer		operator->() const;	
 				reference	operator[](size_type index) const;
 			};
+			*/
 
-			iterator	begin();
-			iterator	end();
-			// iterator	insert(const_iterator pos, const T& value);
+			iterator	begin()
+			{
+				return &_data[0];
+			}
+			iterator	end()
+			{
+				return &_data[_length];
+			}
+			const_iterator	begin() const
+			{
+				return &_data[0];
+			}
+			const_iterator	end() const
+			{
+				return &_data[_length];
+			}
+			
+			iterator	insert(const_iterator pos, const T& value)
+			{
+				if (_length == _capacity)
+					reserve(_capacity * 2);
+				size_type	pos_index = 0;
 
-
+				iterator	iter = begin();
+				for (; iter != pos; iter++)
+					pos_index++;
+				for (size_type i = 1; i <= _length - pos_index; i++)
+					_data[_length - i + 1] = _data[_length - i];
+				_data[pos_index] = value;
+				_length++;
+				return (iter);
+			}
 	};
 };
 
@@ -280,6 +307,7 @@ ft::vector<T, U>::~vector()
 }
 
 //iterator define
+/*
 template <typename T, typename U>
 ft::vector<T, U>::iterator::iterator() : _vec(nullptr), _vec_data(nullptr), _index(0)
 {}
@@ -439,5 +467,5 @@ typename ft::vector<T, U>::iterator ft::vector<T, U>::begin()
 template <typename T, typename U>
 typename ft::vector<T, U>::iterator ft::vector<T, U>::end()
 {	return iterator(this, _data, _length);	}
-
+*/
 #endif
