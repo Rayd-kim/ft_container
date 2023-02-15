@@ -22,7 +22,8 @@ namespace ft
 			typedef	const value_type&								const_reference;
 			typedef	typename Alloc::pointer							iterator;
 			typedef typename Alloc::const_pointer					const_iterator;
-
+			typedef	typename ft::reverse_iterator<iterator>			reverse_iterator;
+			typedef	typename ft::reverse_iterator<const_iterator>	const_reverse_iterator;
 		private:
 			T* 			_data;
 			size_type	_length;
@@ -50,7 +51,7 @@ namespace ft
 			}
 
 			template <class InputIterator>
-			vector (InputIterator first, InputIterator last, typename std::enable_if<!std::is_integral<InputIterator>::value, InputIterator>::type* = NULL)
+			vector (InputIterator first, InputIterator last, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type* = NULL)
 			: _length(0), _capacity(0)
 			{
 				_data = alloc.allocate(_capacity);
@@ -87,7 +88,7 @@ namespace ft
 			}
 
 			template<class InputIt>
-			void	assign(InputIt first, InputIt last, typename std::enable_if<!std::is_integral<InputIt>::value, InputIt>::type* = NULL)
+			void	assign(InputIt first, InputIt last, typename ft::enable_if<!ft::is_integral<InputIt>::value, InputIt>::type* = NULL)
 			{
 				clear();
 				for (; first != last; first++)
@@ -255,11 +256,11 @@ namespace ft
 			};
 			*/
 
-			iterator	begin()
+			iterator		begin()
 			{
 				return &_data[0];
 			}
-			iterator	end()
+			iterator		end()
 			{
 				return &_data[_length];
 			}
@@ -271,8 +272,14 @@ namespace ft
 			{
 				return &_data[_length];
 			}
-			
-
+			reverse_iterator	rbegin()
+			{	return reverse_iterator(end());		}
+			reverse_iterator	rend()
+			{	return reverse_iterator(begin());	}
+			const_reverse_iterator	rbegin() const
+			{	return const_reverse_iterator(end()); }
+			const_reverse_iterator	rend() const
+			{	return const_reverse_iterator(begin());	}
 			iterator	insert(const_iterator pos, const T& value) //pos 값 이상할 때 체크하기
 			{
 				size_type	pos_index = pos - begin();
@@ -292,7 +299,7 @@ namespace ft
 				_length += count;
 			}
 			template<class InputIt>
-			void	insert(const_iterator pos, InputIt first, InputIt last, typename std::enable_if<!std::is_integral<InputIt>::value, InputIt>::type* = NULL)
+			void	insert(const_iterator pos, InputIt first, InputIt last, typename ft::enable_if<!ft::is_integral<InputIt>::value, InputIt>::type* = NULL)
 			{
 				size_type	pos_index = pos - begin();
 
@@ -374,34 +381,34 @@ namespace ft
 };
 
 
-// template <typename T, typename Alloc>
-// bool	operator==(const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>& rhs)
-// {
-// 	if (lhs)
-// 	return();	}
-// template <typename T, typename Alloc>
-// bool	operator!=(const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>& rhs)
-// {	return !(lhs == rhs);	}
-// template <typename T, typename Alloc>
-// bool	operator<(const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>& rhs)
-// {
+template <typename T, typename Alloc>
+bool	operator==(const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>& rhs)
+{
+	if (lhs)
+	return();	}
+template <typename T, typename Alloc>
+bool	operator!=(const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>& rhs)
+{	return !(lhs == rhs);	}
+template <typename T, typename Alloc>
+bool	operator<(const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>& rhs)
+{
 
-// }
-// template <typename T, typename Alloc>
-// bool	operator<=(const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>& rhs)
-// {
+}
+template <typename T, typename Alloc>
+bool	operator<=(const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>& rhs)
+{
 
-// }
-// template <typename T, typename Alloc>
-// bool	operator>(const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>& rhs)
-// {
+}
+template <typename T, typename Alloc>
+bool	operator>(const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>& rhs)
+{
 
-// }
-// template <typename T, typename Alloc>
-// bool	operator>=(const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>& rhs)
-// {
+}
+template <typename T, typename Alloc>
+bool	operator>=(const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>& rhs)
+{
 
-// }
+}
 template <typename T, typename Alloc>
 void	swap(ft::vector<T, Alloc>& lhs, ft::vector<T, Alloc>& rhs)
 {
