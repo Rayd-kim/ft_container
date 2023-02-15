@@ -384,31 +384,26 @@ namespace ft
 template <typename T, typename Alloc>
 bool	operator==(const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>& rhs)
 {
-	if (lhs)
-	return();	}
+	if (lhs.size() != rhs.size())
+		return (false);
+	else
+		return ft::equal(lhs.begin(), lhs.end(), rhs.begin());	
+}
 template <typename T, typename Alloc>
 bool	operator!=(const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>& rhs)
 {	return !(lhs == rhs);	}
 template <typename T, typename Alloc>
 bool	operator<(const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>& rhs)
-{
-
-}
+{	return (ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()));	}
 template <typename T, typename Alloc>
 bool	operator<=(const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>& rhs)
-{
-
-}
+{	return !(rhs < lhs);	}
 template <typename T, typename Alloc>
 bool	operator>(const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>& rhs)
-{
-
-}
+{	return (rhs < lhs);	}
 template <typename T, typename Alloc>
 bool	operator>=(const ft::vector<T, Alloc>& lhs, const ft::vector<T, Alloc>& rhs)
-{
-
-}
+{	return !(lhs < rhs);	}
 template <typename T, typename Alloc>
 void	swap(ft::vector<T, Alloc>& lhs, ft::vector<T, Alloc>& rhs)
 {
