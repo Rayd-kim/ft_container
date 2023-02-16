@@ -1,3 +1,6 @@
+#ifndef	RB_TREE_HPP
+#define	RB_TREE_HPP
+
 #include <iostream>
 #include <stdexcept>
 #include <map>
@@ -39,12 +42,12 @@ class RB_tree{
 	typedef	node_type*							node_pointer;
 	// typedef	typename Alloc::template rebind<Node>::other	Alnode;
 
-	Node<value_type>	*root;
-	Node<value_type>	*insert_temp;
-	Node<value_type>	*nil;
+	node_pointer	root;
+	node_pointer	insert_temp;
+	node_pointer	nil;
 
-	Node<value_type>	*_begin;
-	Node<value_type>	*_end;
+	node_pointer	_begin;
+	node_pointer	_end;
 
 	RB_tree() : root(NULL), insert_temp(NULL)
 	{
@@ -116,12 +119,72 @@ class RB_tree{
 		if (root == NULL || root == nil)
 			return ;
 		inored_node(root->left);
-		// if (root->parent != NULL)
-		// 	std::cout << "key: " << root->value.first << "  parent key: " << root->parent->value.first << "  1red_2black " << root->red_black << std::endl;
-		// else
 		std::cout << "key: " << root->value.first << std::endl;
 		inored_node(root->right);
 	}
+
+	node_pointer	min()
+	{
+		node_pointer	temp = root;
+		if (temp == NULL)
+			return nil;
+		while (temp->left != nil)
+			temp = temp->left;
+		return temp;
+	}
+
+	node_pointer	max()
+	{
+		node_pointer	temp = root;
+		if (temp == NULL)
+			return nil;
+		while (temp->right != nil)
+			temp = temp->right;
+		return temp;
+	}
+
+	node_pointer	Leftmost(node_pointer node)
+	{
+		if (node == nil)
+			return nil;
+		while (node->left != nil)
+			node = node->left;
+		return node;
+	}
+
+	node_pointer	next_node(node_pointer node)
+	{
+		if (node == nil) //end()일 때?
+			return nil;
+		
+		if (node->right != nil)
+			return Leftmost(node->right);
+		
+		node_pointer parent = node->parent;
+		if (parent == NULL) //root인데 왼쪽 자식만 있을경우
+			return nil;
+		if (node == parent->left)
+			return parent;
+
+		while (parent != NULL && node != parent->left)
+		{
+			node = parent;
+			parent = node->parent;
+		}
+		if (parent == NULL)
+			return nil;
+		return parent;
+	}
+
+	node_pointer	prev_node(node_pointer node)
+	{
+		if (node == nil) //node == end일 때
+			return max();
+		
+
+
+	}
+
 
 	void	print_tree()
 	{
@@ -291,10 +354,16 @@ class RB_tree{
 		node_pointer	node = search_key(key);
 
 		if (node != nil)
-		{
+			{
 			node_pointer			del = node;
 			node_pointer			extra_b; //extra black을 갖게 될 node = 삭제되는 노드의 자식.
 			int	del_origin_color	= node->red_black;
+
+			// if (node == _begin)// begin이 삭제될 때는, begin++을 가리키도록 재조정
+			// {
+			// 	_begin = 
+			// }
+
 
 			if (node->left == nil) // 오른쪽에 유효한 자식을 가질 때.
 			{
@@ -416,44 +485,8 @@ class RB_tree{
 
 	value_type*	begin()
 	{	return &(_begin->value);	}
-
 	value_type*	end()
 	{	return &(_end->value);	}
-
-	class	iterator{
-		public:
-		typedef std::bidirectional_iterator_tag	iterator_category;
-		typedef	typename Alloc::value_type		value_type;
-		typedef	typename Alloc::reference		reference;
-		typedef	typename Alloc::pointer			pointer;
-		typedef	typename Alloc::difference_type	difference_type;
-
-		private:
-		value_type	
-
-		public:
-		iterator();
-		~iterator();
-		
-		bool	operator==(const iterator& other) const;
-		bool	operator!=(const iterator& other) const;
-		bool	operator<(const iterator& other) const;
-		bool	operator<=(const iterator& other) const;
-		bool	operator>(const iterator& other) const;
-		bool	operator>=(const iterator& other) const;
-		iterator&	operator=(const iterator& other);
-		iterator&	operator++();
-		iterator	operator++(int);
-		iterator&	operator--();
-		iterator	operator--(int);
-		reference	operator*() const;
-		pointer		operator->() const;
-	
-		
-
-
-
-	};
 
 	size_type	size() const{
 		return (_size);
@@ -467,47 +500,10 @@ class RB_tree{
 		else
 			throw(std::out_of_range("Map"));
 	}
-
 	size_type	max_size() const
 	{return (std::numeric_limits<size_type>::max() / sizeof(node_type));}
 
+	
 };
 
-int	main(void)
-{
-	RB_tree<int, std::string>	rb_tree;
-	std::map<int, std::string>	map1;
-
-	map1.insert(make_pair(1, (std::string)"1"));
-
-	rb_tree.insert_node(make_pair(1, (std::string)"1"));
-	rb_tree.insert_node(make_pair(2, (std::string)"2"));
-	// rb_tree.insert_node(make_pair(5, (std::string)"5"));
-	// rb_tree.insert_node(make_pair(4, (std::string)"4"));
-	// rb_tree.insert_node(make_pair(3, (std::string)"3"));
-	// rb_tree.insert_node(make_pair(6, (std::string)"6"));
-	// rb_tree.insert_node(make_pair(8, (std::string)"8"));
-	// rb_tree.insert_node(make_pair(7, (std::string)"7"));
-	// rb_tree.insert_node(make_pair(10, (std::string)"10"));
-	// rb_tree.insert_node(make_pair(11, (std::string)"11"));
-	// rb_tree.insert_node(make_pair(9, (std::string)"9"));
-
-	rb_tree.print_tree();
-	std::cout << "size: " << rb_tree.size() << std::endl;
-
-	rb_tree.delete_node(1);
-	rb_tree.delete_node(2);
-	rb_tree.delete_node(2);
-	rb_tree.print_tree();
-	std::cout << "size: " << rb_tree.size() << std::endl;
-
-	rb_tree.insert_node(make_pair(1, (std::string)"1"));
-	rb_tree.insert_node(make_pair(2, (std::string)"2"));
-	rb_tree.print_tree();
-	std::cout << "size: " << rb_tree.size() << std::endl;
-
-	
-
-	// system("leaks a.out");
-	
-}
+#endif
