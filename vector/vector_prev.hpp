@@ -19,7 +19,7 @@ namespace ft
 			typedef	typename std::allocator<T>::difference_type		difference_type;
 			typedef	typename std::allocator<T>::size_type			size_type;
 			typedef	const value_type&								const_reference;
-			typedef	typename Alloc::pointer							iterator;
+			// typedef	typename Alloc::pointer							iterator;
 			typedef typename Alloc::const_pointer					const_iterator;
 
 		private:
@@ -89,7 +89,6 @@ namespace ft
 					alloc.destroy(&_data[_length - 1]);
 			}
 
-			/*
 			class	iterator{
 			private:
 				vector<T>*	_vec;
@@ -129,7 +128,6 @@ namespace ft
 				pointer		operator->() const;	
 				reference	operator[](size_type index) const;
 			};
-			*/
 
 			iterator	begin()
 			{
@@ -307,7 +305,7 @@ ft::vector<T, U>::~vector()
 }
 
 //iterator define
-/*
+
 template <typename T, typename U>
 ft::vector<T, U>::iterator::iterator() : _vec(nullptr), _vec_data(nullptr), _index(0)
 {}
@@ -467,5 +465,5 @@ typename ft::vector<T, U>::iterator ft::vector<T, U>::begin()
 template <typename T, typename U>
 typename ft::vector<T, U>::iterator ft::vector<T, U>::end()
 {	return iterator(this, _data, _length);	}
-*/
+
 #endif

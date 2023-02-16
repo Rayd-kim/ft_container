@@ -1,7 +1,7 @@
 #ifndef	MAP_HPP
 #define	MAP_HPP
 
-#include "RB_tree.hpp"
+#include "RB_tree_compare_version.hpp"
 
 namespace ft{
 
@@ -23,19 +23,20 @@ class map{
 	typedef	typename Allocator::difference_type	difference_type;
 
 	private:
-		RB_tree	_tree;
 
 	public:
+		RB_tree<Key, T>	_tree;
 
 	//constructor & destructor
 	map() : _tree() {};
+	~map() {};
+	/*
 	explicit map(const Compare& comp, const Allocator& alloc = Allocator() );
 	
 	template<class InputIt>
 	map(InputIt first, InputIt last, const Compare& comp = Compare(), const Allocator& alloc = Allocator() );
 
 	map(const map& other) : _tree(other._tree) {}
-	~map();
 	
 	map& operator=(const map& other);
 
@@ -47,9 +48,9 @@ class map{
 	{	return _tree.at();	}
 	T& operator[](const Key& key)
 	{
-		typename RB_tree::node_pointer	node;
+		typename RB_tree<Key, T>::node_pointer	node;
 		node = _tree.search_key(key);
-		if (node == RB_tree::nil)
+		if (node == _tree.nil)
 		{
 			_tree.insert_node(std::make_pair(key, 0));
 			return &(_tree.search_key(key).second);
@@ -83,9 +84,9 @@ class map{
 	{	ft::swap(_tree, other._tree);	}	
 	size_type count(const Key& key) const //key에 해당하는 값이 몇개있는지. 0 or 1 중 하나임(중복을 허용하지 않기 때문에)
 	{
-		typename RB_tree::node_type	node;
-		node = RB_tree::search_key(key);
-		if (node == RB_tree::nil)
+		typename RB_tree<Key, T>::node_type	node;
+		node = RB_tree<Key, T>::search_key(key);
+		if (node == _tree.ni)
 			return (0);
 		return (1);
 	}
@@ -101,6 +102,7 @@ class map{
 	iterator upper_bound(const Key& key);
 	const_iterator upper_bound(const Key& key) const;
 	
+	*/
 	class value_compare{
 		protected:
 			Compare comp;
@@ -112,37 +114,68 @@ class map{
 			}
 	};
 
-		class	iterator{
-		public:
-		typedef std::bidirectional_iterator_tag	iterator_category;
-		typedef	typename Alloc::value_type		value_type;
-		typedef	typename Alloc::reference		reference;
-		typedef	typename Alloc::pointer			pointer;
-		typedef	typename Alloc::difference_type	difference_type;
+	class	iterator{
+	public:
+	typedef std::bidirectional_iterator_tag	iterator_category;
+	typedef	typename Allocator::value_type		value_type;
+	typedef	typename Allocator::reference		reference;
+	typedef	typename Allocator::pointer			pointer;
+	typedef	typename Allocator::difference_type	difference_type;
 
-		private:
-		value_type	
+	private:
+	typename RB_tree<Key, T>::node_pointer	_node;
+	RB_tree<Key, T>							__tree;
 
-		public:
-		iterator();
-		~iterator();
-		
-		bool		operator==(const iterator& other) const;
-		bool		operator!=(const iterator& other) const;
-		bool		operator<(const iterator& other) const;
-		bool		operator<=(const iterator& other) const;
-		bool		operator>(const iterator& other) const;
-		bool		operator>=(const iterator& other) const;
-		iterator&	operator=(const iterator& other);
-		iterator&	operator++();
-		iterator	operator++(int);
-		iterator&	operator--();
-		iterator	operator--(int);
-		reference	operator*() const;
-		pointer		operator->() const;
+	public:
+	iterator() : _node(), __tree() {}
+	iterator(typename RB_tree<Key, T>::node_pointer node, RB_tree<Key, T> _tree)
+	: _node(node), __tree(_tree) {}
+	~iterator() {}
+	
+	iterator&	operator=(const iterator& other)
+	{
+		_node = other._node;
+		__tree = other.__tree;
+		return (*this);
+	}
+	iterator&	operator++()
+	{
+		_node = __tree.next_node(_node);
+		return *this;
+	}
+	iterator	operator++(int)
+	{
+		iterator	temp = *this;
+		_node = __tree.next_node(_node);
+		return temp;
+	}
+	iterator&	operator--()
+	{
+		_node = __tree.prev_node(_node);
+		return *this;
+	}
+	iterator	operator--(int)
+	{
+		iterator	temp = *this;
+		_node = __tree.prev_node(_node);
+		return temp;
+	}
+	reference	operator*() const
+	{	return (_node->value);	}
+	pointer		operator->() const
+	{	return &(_node->value);	}
 
-
+	bool	operator==(const iterator& other) const
+	{	return _node == other._node;	}
+	bool	operator!=(const iterator& other) const
+	{	return !(*this == other);	}
 	};
+
+
+	iterator	begin()
+	{	return iterator(_tree._begin, _tree);	}
+	iterator	end()
+	{	return iterator(_tree._end, _tree);	}
 
 };
 
