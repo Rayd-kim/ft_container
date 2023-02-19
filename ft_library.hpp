@@ -62,7 +62,7 @@ namespace ft{
 		reference			operator*() const
 		{
 			iterator_type	temp = _iter;
-			return (*--temp);
+			return *(--temp);
 		}
 		pointer				operator->() const
 		{	return (&(operator*()));	}
@@ -223,7 +223,7 @@ namespace ft{
 			return (true);
 		else
 			return (false);
-	}
+	};
 
 	template <typename InputIt1, typename InputIt2, typename Compare>
 	bool	lexicographical_compare(InputIt1 first1, InputIt1 last1, InputIt2 first2, InputIt2 last2, Compare comp)
@@ -239,14 +239,58 @@ namespace ft{
 			return (true);
 		else
 			return (false);
-	}
+	};
 
 
-	/*
-	struct	pair{};
-	struct	make_pair{};
-	*/
+	template <typename T1, typename T2>
+	struct	pair{
+		public:
+		typedef	T1	first_type;
+		typedef	T2	second_type;
 
+		T1	first;
+		T2	second;
+
+		pair() : first(), second() {}
+
+		template<typename U, typename V>
+		pair(const pair<U, V>& pr) : first(pr.first), second(pr.second) {}
+
+		pair(const first_type& a, const second_type& b) : first(a), second(b) {}
+
+		pair&	operator=(const pair& pr)
+		{
+			first = pr.first;
+			second = pr.second;
+			return *this;
+		}
+	};
+
+	template <typename T1, typename T2>
+	ft::pair<T1, T2>	make_pair(T1 first, T2 second)
+	{
+		return (ft::pair<T1, T2>(first, second));
+	};
+	
+	template <typename T1, typename T2>
+	bool	operator==(const ft::pair<T1, T2>& lhs, const ft::pair<T1, T2>& rhs)
+	{	return (lhs.first == rhs.first && lhs.second == rhs.second);	}
+	template <typename T1, typename T2>
+	bool	operator!=(const ft::pair<T1, T2>& lhs, const ft::pair<T1, T2>& rhs)
+	{	return !(lhs == rhs);	}
+	template <typename T1, typename T2>
+	bool	operator<(const ft::pair<T1, T2>& lhs, const ft::pair<T1, T2>& rhs)
+	{	return (lhs.first < rhs.first || (!(rhs.first < lhs.first) && lhs.second < rhs.second));	}
+	template <typename T1, typename T2>
+	bool	operator<=(const ft::pair<T1, T2>& lhs, const ft::pair<T1, T2>& rhs)
+	{	return !(lhs > rhs);	}
+	template <typename T1, typename T2>
+	bool	operator>(const ft::pair<T1, T2>& lhs, const ft::pair<T1, T2>& rhs)
+	{	return (lhs > rhs);	}
+	template <typename T1, typename T2>
+	bool	operator>=(const ft::pair<T1, T2>& lhs, const ft::pair<T1, T2>& rhs)
+	{	return !(lhs < rhs);	}
+	
 	template<typename T>
 	void	swap(T& a, T& b)
 	{
@@ -254,6 +298,7 @@ namespace ft{
 		a = b;
 		b = temp;
 	}
+
 };
 
 

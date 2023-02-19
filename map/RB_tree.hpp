@@ -3,53 +3,38 @@
 
 #include <iostream>
 #include <stdexcept>
-#include <map>
+#include "RB_tree_iterator.hpp"
+#include "../ft_library.hpp"
 
-#define RED 			1
-#define BLACK			2
-
-template <typename _pair>
-struct Node {
-	public:
-	_pair	value;
-	Node	*parent;
-	Node	*left;
-	Node	*right;
-	int		red_black;
-
-	Node(_pair pair) : value(pair), parent(NULL), left(NULL), right(NULL), red_black(RED) //일반 insert때의 노드 생성
-	{}
-
-	Node() : parent(NULL), left(NULL), right(NULL), red_black(BLACK)//leaf node(nil_node) 생성
-	{}
-	
-};
-
-template<typename Key, typename Value, typename Compare = std::less<Key>, 
-typename Allocator = std::allocator<std::pair<const Key, Value> > >
+template<typename _pair, typename Compare = std::less<_pair>, 
+typename Allocator = std::allocator<_pair> >
 class RB_tree{
 	private:
 		size_t	_size;
 
 	public:
-	typedef	Key									key_type;
-	typedef	Value								mapped_type;
-	typedef	std::pair<const Key, Value>			value_type;
+	typedef	_pair								value_type;
 	typedef	Allocator							Alloc;
+	typedef	Compare								key_compare;
 	typedef	value_type&							reference;
 	typedef	typename Allocator::size_type		size_type;
 	typedef	Node<value_type>					node_type;
 	typedef	node_type*							node_pointer;
-	// typedef	typename Alloc::template rebind<Node>::other	Alnode;
+	typedef	tree_iterator<_pair>				iterator;
+	typedef	const_tree_iterator<_pair>			const_iterator;
+
+	// typedef	typename Alloc::template rebind<Node<_pair> >::other	Alnode;
 
 	node_pointer	root;
 	node_pointer	insert_temp;
 	node_pointer	nil;
-
 	node_pointer	_begin;
 	node_pointer	_end;
 
-	RB_tree() : root(NULL), insert_temp(NULL)
+	key_compare		_comp;
+	Alloc			_alloc;
+
+	RB_tree() : root(NULL), insert_temp(NULL), _comp(Compare()), _alloc(Allocator())
 	{
 		nil = new Node<value_type>;
 		_begin = nil;
@@ -57,7 +42,15 @@ class RB_tree{
 		_size = 0;
 	}
 
-	Node<value_type>* create_new_node(value_type pair)
+	RB_tree(const Compare& comp, const Allocator& alloc = Allocator()) : root(NULL), insert_temp(NULL), _comp(comp), _alloc(alloc)
+	{
+		nil = new Node<value_type>;
+		_begin = nil;
+		_end = nil;
+		_size = 0;
+	}
+
+	Node<value_type>* create_new_node(const value_type& pair)
 	{
 		Node<value_type>	*ret = new Node<value_type>(pair);
 		ret->left = nil;
@@ -69,49 +62,57 @@ class RB_tree{
 		return (ret);
 	}
 
-	void	insert_node(value_type pair)
+	ft::pair<iterator, bool>	insert_node(const value_type& pair)
 	{
+		node_pointer	ret;
+
 		if (root == NULL)
 		{
 			root = create_new_node(pair);
 			root->red_black = BLACK;
 			insert_temp = root;
 			_size++;
+			return ft::make_pair(iterator(root, nil, root), true);
 		}
-		else if (pair.first < insert_temp->value.first)
+		else if (Compare()(pair.first, insert_temp->value.first))
 		{
 			if (insert_temp->left == nil)
 			{
 				insert_temp->left = create_new_node(pair);
 				insert_temp->left->parent = insert_temp;
 				red_black_check(insert_temp->left);
+				ret = insert_temp->left;
 				insert_temp = root;
 				_size++;
+				return ft::make_pair(iterator(ret, nil, root), true);
 			}
 			else
 			{
 				insert_temp = insert_temp->left;
-				insert_node(pair);
+				return insert_node(pair);
 			}
 		}
-		else if (pair.first > insert_temp->value.first)
+		else if (Compare()(insert_temp->value.first, pair.first))
 		{
 			if (insert_temp->right == nil)
 			{
 				insert_temp->right = create_new_node(pair);
 				insert_temp->right->parent = insert_temp;
 				red_black_check(insert_temp->right);
+				ret = insert_temp->right;
 				insert_temp = root;
 				_size++;
+				return ft::make_pair(iterator(ret, nil, root), true);
 			}
 			else
 			{
 				insert_temp = insert_temp->right;
-				insert_node(pair);
+				return insert_node(pair);
 			}
 		}
-		else
-			insert_temp = root;
+		ret = insert_temp;
+		insert_temp = root;
+		return ft::make_pair(iterator(ret, nil, root), false);
 	}
 
 	void	inored_node(Node<value_type> *root)
@@ -119,7 +120,7 @@ class RB_tree{
 		if (root == NULL || root == nil)
 			return ;
 		inored_node(root->left);
-		std::cout << "key: " << root->value.first << std::endl;
+		std::cout << "key: " << root->value.first << " value :" << root->value.second << std::endl;
 		inored_node(root->right);
 	}
 
@@ -152,6 +153,15 @@ class RB_tree{
 		return node;
 	}
 
+	node_pointer	Rightmost(node_pointer node)
+	{
+		if (node == nil)
+			return nil;
+		while (node->right != nil)
+			node = node->right;
+		return node;
+	}
+
 	node_pointer	next_node(node_pointer node)
 	{
 		if (node == nil) //end()일 때?
@@ -180,11 +190,25 @@ class RB_tree{
 	{
 		if (node == nil) //node == end일 때
 			return max();
+
+		if (node->left != nil)
+			return Rightmost(node->left);
 		
+		node_pointer parent	= node->parent;
+		if (parent == NULL)
+			return nil;
+		if (node == parent->right)
+			return parent;
 
-
+		while (parent != NULL && node != parent->right)
+		{
+			node = parent;
+			parent = node->parent;
+		}
+		if (parent == NULL)
+			return nil;
+		return parent;
 	}
-
 
 	void	print_tree()
 	{
@@ -309,15 +333,15 @@ class RB_tree{
 		}
 	}
 
-	node_pointer	search_key(const Key& key)
+	node_pointer	search_key(const _pair& pair) const
 	{
 		node_pointer	ret = root;
 
 		while (ret != nil && ret != NULL)
 		{
-			if (ret->value.first > key)
+			if (Compare()(pair.first, ret->value.first))
 				ret = ret->left;
-			else if (ret->value.first < key)
+			else if (Compare()(ret->value.first, pair.first))
 				ret = ret->right;
 			else
 				return (ret);
@@ -349,9 +373,9 @@ class RB_tree{
 		after->parent = before->parent;
 	}
 
-	void	delete_node(const Key& key)
+	void	delete_node(const _pair& pair)
 	{
-		node_pointer	node = search_key(key);
+		node_pointer	node = search_key(pair);
 
 		if (node != nil)
 			{
@@ -483,26 +507,50 @@ class RB_tree{
 		extra_b->red_black = BLACK;
 	}
 
-	value_type*	begin()
-	{	return &(_begin->value);	}
-	value_type*	end()
-	{	return &(_end->value);	}
-
 	size_type	size() const{
 		return (_size);
 	}
-	Value	at(const Key& key)	
+	value_type&	at(const _pair& pair)
 	{
-		node_pointer	node = search_key(key);
+		node_pointer	node = search_key(pair);
 
 		if (node != nil)
-			return (node->value.second);
+			return (node->value);
 		else
 			throw(std::out_of_range("Map"));
 	}
 	size_type	max_size() const
 	{return (std::numeric_limits<size_type>::max() / sizeof(node_type));}
+	
+	iterator	find(const value_type& value, iterator begin, iterator end)
+	{
+		while (begin != end)
+		{
+			if (begin->first == value.first)
+				return (begin);
+			++begin;
+		}
+		return (begin);
+	}
+	const_iterator	find(const value_type& value, const_iterator begin, const_iterator end) const
+	{
+		while (begin != end)
+		{
+			if (begin->first == value.first)
+				return (begin);
+			++begin;
+		}
+		return (begin);
+	}
 
+	size_type	count(const value_type& value) const
+	{
+		node_pointer	node = search_key(value);
+
+		if (node == nil)
+			return (0);
+		return (1);
+	}
 	
 };
 
