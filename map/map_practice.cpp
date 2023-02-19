@@ -33,6 +33,4 @@ int	main()
 	std::cout << (test_iter1 != test_iter2) << std::endl;
 
 	
-
-	
 }

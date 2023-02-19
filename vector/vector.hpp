@@ -257,21 +257,13 @@ namespace ft
 			*/
 
 			iterator		begin()
-			{
-				return &_data[0];
-			}
+			{	return &_data[0];	}
 			iterator		end()
-			{
-				return &_data[_length];
-			}
+			{	return &_data[_length];	}
 			const_iterator	begin() const
-			{
-				return &_data[0];
-			}
+			{	return &_data[0];	}
 			const_iterator	end() const
-			{
-				return &_data[_length];
-			}
+			{	return &_data[_length];	}
 			reverse_iterator	rbegin()
 			{	return reverse_iterator(end());		}
 			reverse_iterator	rend()

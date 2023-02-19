@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <map>
+// #include "RB_tree_iterator.hpp"
 
 #define RED 			1
 #define BLACK			2
@@ -25,22 +26,22 @@ struct Node {
 	
 };
 
-template<typename Key, typename Value, typename Compare = std::less<Key>, 
-typename Allocator = std::allocator<std::pair<const Key, Value> > >
+template<typename _pair, typename Compare = std::less<_pair>, 
+typename Allocator = std::allocator<_pair> >
 class RB_tree{
 	private:
 		size_t	_size;
 
 	public:
-	typedef	Key									key_type;
-	typedef	Value								mapped_type;
-	typedef	std::pair<const Key, Value>			value_type;
+	typedef	_pair								value_type;
 	typedef	Allocator							Alloc;
 	typedef	value_type&							reference;
 	typedef	typename Allocator::size_type		size_type;
 	typedef	Node<value_type>					node_type;
 	typedef	node_type*							node_pointer;
-	// typedef	typename Alloc::template rebind<Node>::other	Alnode;
+	
+
+	// typedef	typename Alloc::template rebind<Node<_pair> >::other	Alnode;
 
 	node_pointer	root;
 	node_pointer	insert_temp;
@@ -332,15 +333,15 @@ class RB_tree{
 		}
 	}
 
-	node_pointer	search_key(const Key& key)
+	node_pointer	search_key(const _pair& pair)
 	{
 		node_pointer	ret = root;
 
 		while (ret != nil && ret != NULL)
 		{
-			if (ret->value.first > key)
+			if (Compare()(pair.first, ret->value.first))
 				ret = ret->left;
-			else if (ret->value.first < key)
+			else if (Compare()(ret->value.first, pair.first))
 				ret = ret->right;
 			else
 				return (ret);
@@ -372,9 +373,9 @@ class RB_tree{
 		after->parent = before->parent;
 	}
 
-	void	delete_node(const Key& key)
+	void	delete_node(const _pair& pair)
 	{
-		node_pointer	node = search_key(key);
+		node_pointer	node = search_key(pair);
 
 		if (node != nil)
 			{
@@ -506,26 +507,81 @@ class RB_tree{
 		extra_b->red_black = BLACK;
 	}
 
-	value_type*	begin()
-	{	return &(_begin->value);	}
-	value_type*	end()
-	{	return &(_end->value);	}
-
 	size_type	size() const{
 		return (_size);
 	}
-	Value	at(const Key& key)	
-	{
-		node_pointer	node = search_key(key);
+	// Value	at(const _pair& pair)
+	// {
+	// 	node_pointer	node = search_key(pair);
 
-		if (node != nil)
-			return (node->value.second);
-		else
-			throw(std::out_of_range("Map"));
-	}
+	// 	if (node != nil)
+	// 		return (node->value.second);
+	// 	else
+	// 		throw(std::out_of_range("Map"));
+	// }
 	size_type	max_size() const
 	{return (std::numeric_limits<size_type>::max() / sizeof(node_type));}
 	
+	class	tree_iterator{
+	public:
+	typedef std::bidirectional_iterator_tag					iterator_category;
+	typedef	_pair											value_type;
+	typedef	value_type&										reference;
+	typedef	value_type*										pointer;
+	typedef	std::ptrdiff_t									difference_type;
+	// typedef	typename RB_tree<_pair>::node_pointer			node_pointer;
+
+	private:
+	node_pointer							_node;
+	RB_tree<_pair, Compare, Allocator>		__tree;
+
+	public:
+	tree_iterator() : _node(), __tree() {}
+	tree_iterator(node_pointer node, RB_tree<_pair, Compare, Allocator> _tree): _node(node), __tree(_tree) {}
+	
+	tree_iterator(const tree_iterator& other) : _node(other._node), __tree(other.__tree) {}
+	~tree_iterator() {}
+	
+	tree_iterator&	operator=(const tree_iterator& other)
+	{
+		_node = other._node;
+		__tree = other.__tree;
+		return (*this);
+	}
+	tree_iterator&	operator++()
+	{
+		_node = __tree.next_node(_node);
+		return *this;
+	}
+	tree_iterator	operator++(int)
+	{
+		tree_iterator	temp = *this;
+		_node = __tree.next_node(_node);
+		return temp;
+	}
+	tree_iterator&	operator--()
+	{
+		_node = __tree.prev_node(_node);
+		return *this;
+	}
+	tree_iterator	operator--(int)
+	{
+		tree_iterator	temp = *this;
+		_node = __tree.prev_node(_node);
+		return temp;
+	}
+	reference	operator*() const
+	{	return (_node->value);	}
+	pointer		operator->() const
+	{	return &(_node->value);	}
+
+	bool	operator==(const tree_iterator& other) const
+	{	return _node == other._node;	}
+	bool	operator!=(const tree_iterator& other) const
+	{	return !(*this == other);	}
+	
+	};
+
 };
 
 #endif
