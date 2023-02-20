@@ -50,6 +50,38 @@ class RB_tree{
 		_size = 0;
 	}
 
+	RB_tree(const RB_tree& other) : root(NULL), insert_temp(NULL), nil(other.nil),
+	_begin(nil), _end(nil), _comp(other._comp), _alloc(other._alloc)
+	{
+		_size = 0;
+		iterator	start(other._begin, other.nil, other.root);
+		iterator	end(other._end, other.nil, other.root);
+		while (start != end)
+		{
+			insert_node(*start);
+			++start;
+		}
+	}
+
+	RB_tree&	operator=(const RB_tree& other)
+	{
+		this->clear();
+		nil = other.nil;
+		_comp = other._comp;
+		_alloc = other._alloc;
+		_begin = nil;
+		_end = nil;
+
+		iterator	start(other._begin, other.nil, other.root);
+		iterator	end(other._end, other.nil, other.root);
+		while (start != end)
+		{
+			insert_node(*start);
+			++start;
+		}
+		return (*this);
+	}
+
 	Node<value_type>* create_new_node(const value_type& pair)
 	{
 		Node<value_type>	*ret = new Node<value_type>(pair);
@@ -57,7 +89,7 @@ class RB_tree{
 		ret->right = nil;
 		if (_begin == nil)
 			_begin = ret;
-		else if (_begin->value.first > pair.first)
+		else if (_comp(pair.first, _begin->value.first))
 			_begin = ret;
 		return (ret);
 	}
@@ -74,7 +106,7 @@ class RB_tree{
 			_size++;
 			return ft::make_pair(iterator(root, nil, root), true);
 		}
-		else if (Compare()(pair.first, insert_temp->value.first))
+		else if (_comp(pair.first, insert_temp->value.first))
 		{
 			if (insert_temp->left == nil)
 			{
@@ -92,7 +124,7 @@ class RB_tree{
 				return insert_node(pair);
 			}
 		}
-		else if (Compare()(insert_temp->value.first, pair.first))
+		else if (_comp(insert_temp->value.first, pair.first))
 		{
 			if (insert_temp->right == nil)
 			{
@@ -339,9 +371,9 @@ class RB_tree{
 
 		while (ret != nil && ret != NULL)
 		{
-			if (Compare()(pair.first, ret->value.first))
+			if (_comp(pair.first, ret->value.first))
 				ret = ret->left;
-			else if (Compare()(ret->value.first, pair.first))
+			else if (_comp(ret->value.first, pair.first))
 				ret = ret->right;
 			else
 				return (ret);
@@ -378,16 +410,15 @@ class RB_tree{
 		node_pointer	node = search_key(pair);
 
 		if (node != nil)
-			{
+		{
 			node_pointer			del = node;
 			node_pointer			extra_b; //extra black을 갖게 될 node = 삭제되는 노드의 자식.
 			int	del_origin_color	= node->red_black;
 
-			// if (node == _begin)// begin이 삭제될 때는, begin++을 가리키도록 재조정
-			// {
-			// 	_begin = 
-			// }
-
+			if (node == _begin)// begin이 삭제될 때는, begin++을 가리키도록 재조정
+			{
+				_begin = next_node(_begin);
+			}
 
 			if (node->left == nil) // 오른쪽에 유효한 자식을 가질 때.
 			{
@@ -418,7 +449,6 @@ class RB_tree{
 				del->left->parent = del;
 				del->red_black = node->red_black;
 			}
-
 			//fix_up
 			if (del_origin_color == BLACK)
 				fixed_up_rb_tree(extra_b);
@@ -427,6 +457,7 @@ class RB_tree{
 		}
 		if (root == nil)
 			root = NULL;
+		insert_temp = root;
 	}
 
 	void	fixed_up_rb_tree(node_pointer extra_b)
@@ -551,7 +582,45 @@ class RB_tree{
 			return (0);
 		return (1);
 	}
+
+	void	clear()
+	{
+		node_pointer	next, remove;
+
+		remove = _begin;
+		next = next_node(remove);
+		while (remove != nil)
+		{
+			delete_node(remove->value);
+			remove = next;
+			next = next_node(remove);
+		}
+	}
 	
+	size_type	erase(const value_type& value)
+	{
+		// printf("erase %d\n", value.first);
+		node_pointer	remove = search_key(value);
+
+		// if (value.first == 33)
+		// 	std::cout << "remove :" << remove->value.first << std::endl;
+		if (remove == nil)
+			return (0);
+		delete_node(value);
+		return (1);
+	}
+
+	void	swap(RB_tree& other)
+	{
+		ft::swap (root, other.root);
+		ft::swap (insert_temp, other.insert_temp);
+		ft::swap (nil, other.nil);
+		ft::swap (_begin, other._begin);
+		ft::swap (_end, other._end);
+		ft::swap (_comp, other._comp);
+		ft::swap (_alloc, other._alloc);
+		ft::swap (_size, other._size);
+	}
 };
 
 #endif

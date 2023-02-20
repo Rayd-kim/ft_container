@@ -214,48 +214,6 @@ namespace ft
 					alloc.destroy(&_data[_length - 1]);
 			}
 
-			/*
-			class	iterator{
-			private:
-				vector<T>*	_vec;
-				T*			_vec_data;
-				size_type	_index;
-
-			public:
-				typedef	std::random_access_iterator_tag	iterator_category;
-				typedef	typename Alloc::value_type		value_type;
-				typedef	typename Alloc::reference		reference;
-				typedef	typename Alloc::pointer			pointer;
-				typedef	typename Alloc::difference_type	difference_type;
-
-				iterator();
-				iterator(vector<T>* vec, T* vec_data, size_type index);
-				~iterator();
-
-				bool		operator==(const iterator& iter) const;
-				bool		operator!=(const iterator& iter) const;
-				bool		operator<(const iterator& iter) const;
-				bool		operator>(const iterator& iter) const;
-				bool		operator<=(const iterator& iter) const;
-				bool		operator>=(const iterator& iter) const;
-
-				iterator&	operator=(const iterator& iter);
-				iterator&	operator++();
-				iterator	operator++(int);
-				iterator&	operator--();
-				iterator	operator--(int);
-				iterator&	operator+=(size_type index);
-				iterator&	operator-=(size_type index);
-				iterator	operator+(size_type	index) const;
-				iterator	operator-(size_type	index) const;
-
-				difference_type	operator-(iterator& iter) const;
-				reference	operator*() const;
-				pointer		operator->() const;	
-				reference	operator[](size_type index) const;
-			};
-			*/
-
 			iterator		begin()
 			{	return &_data[0];	}
 			iterator		end()

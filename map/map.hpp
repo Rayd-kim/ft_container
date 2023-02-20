@@ -2,7 +2,6 @@
 #define	MAP_HPP
 
 #include "RB_tree.hpp"
-// #include "RB_tree_iterator.hpp"
 #include "../ft_library.hpp"
 
 namespace ft{
@@ -50,7 +49,7 @@ class map{
 	
 	template<class InputIt>
 	map(InputIt first, InputIt last, const Compare& comp = Compare(), const Allocator& alloc = Allocator())
-	: _tree(rb_tree()), _comp(comp), _alloc(alloc)
+	: _tree(rb_tree(comp, alloc)), _comp(comp), _alloc(alloc)
 	{
 		while (first != last)
 		{
@@ -59,8 +58,8 @@ class map{
 		}
 	}
 
-	map(const map& other) : _tree(other._tree), _comp(other._comp), _alloc(other._comp) {}
-	
+	map(const map& other) : _tree(rb_tree(other._tree)), _comp(other._comp), _alloc(other._alloc) {}
+
 	map& operator=(const map& other)
 	{
 		_tree = other._tree;
@@ -92,9 +91,7 @@ class map{
 	size_type max_size() const // Key, T 가 아니라 rb_tree에서 노드갯수로?
 	{	return _tree.max_size();	}	
 	ft::pair<iterator, bool> insert(const value_type& value)
-	{
-		return (_tree.insert_node(value));
-	}
+	{	return (_tree.insert_node(value));	}
 	iterator insert(iterator pos, const value_type& value)
 	{
 		iterator tmp = pos;
@@ -105,22 +102,27 @@ class map{
 	void insert(InputIt first, InputIt last)
 	{
 		while (first != last)
-		{
-			insert(*first);
-			++first;
-		}
+			insert(*first++);
 	}
 	
-	/*
-	void clear(); //vector 랑 다르게 capacity는 없으니까, size만 0으로
-	iterator erase(itertor pos);
-	iterator erase(iterator first, iterator last);
-	size_type erase(const Key& key); // Removes the element(if one exists) with the key equivalent to key.
-	*/
+	void clear() //vector 랑 다르게 capacity는 없으니까, size만 0으로
+	{	_tree.clear();	}
+	
+	void erase(iterator pos)
+	{	_tree.delete_node(*pos);	}
+
+	void erase(iterator first, iterator last)
+	{
+		while (first != last)
+			erase(first++);
+	}
+	size_type erase(const Key& key) // Removes the element(if one exists) with the key equivalent to key.
+	{	return _tree.erase(ft::make_pair(key, mapped_type()));	}
+	
 
 	void swap(map& other)
 	{
-		ft::swap(_tree, other._tree);
+		_tree.swap(other._tree);
 		ft::swap(_comp, other._comp);
 		ft::swap(_alloc, other._alloc);
 	}
@@ -225,7 +227,9 @@ class map{
 
 };
 
-
+template< class Key, class T, class Compare, class Alloc >
+void swap( ft::map<Key, T, Compare, Alloc>& lhs,  ft::map<Key, T, Compare, Alloc>& rhs )
+{	lhs.swap(rhs);	}
 
 };
 

@@ -151,7 +151,9 @@ class	tree_iterator{
 	reference	operator*() const
 	{	return (_node->value);	}
 	pointer		operator->() const
-	{	return &(_node->value);	}
+	{
+		// printf("%p   %d\n", _node, _node->value.first);
+		return &(_node->value);	}
 
 	bool	operator==(const tree_iterator& other) const
 	{	return _node == other._node;	}
