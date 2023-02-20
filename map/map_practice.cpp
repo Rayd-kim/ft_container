@@ -55,9 +55,9 @@ int	main()
 	// printf("erase 25\n");
 	m.erase(25);
 	// printf("erase 55\n");
-	// m.erase(55);
+	m.erase(55);
 	// printf("erase 24\n");
-	// m.erase(24);
+	m.erase(24);
 	// printf("erase 54\n");
 	// m.erase(54);
 	// printf("erase 22\n");
@@ -89,8 +89,8 @@ int	main()
 		std::cout << "key : " << iter->first << " value :" << iter->second << std::endl;
 		
 		std::cout << iter.base()->value.first << std::endl;
-		std::cout << iter.base()->right->value.first << std::endl;
 		std::cout << iter.base()->left->value.first << std::endl;
+		std::cout << iter.base()->right->value.first << std::endl;
 		if (iter.base()->right->parent != NULL)
 			std::cout << iter.base()->right->parent->value.first << std::endl;
 		if (iter.base()->left->parent != NULL)

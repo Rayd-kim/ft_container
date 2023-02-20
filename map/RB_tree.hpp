@@ -388,7 +388,7 @@ class RB_tree{
 		while (node != nil && node != NULL)
 		{
 			successor = node;
-			node = node->left;
+			node = node->right;
 		}
 		return successor;
 	}
@@ -430,23 +430,23 @@ class RB_tree{
 				extra_b = node->left;
 				transplant(node, node->left);
 			}
-			else //둘 다 black일 때, successor의 부모가 node인지 아닌지에 따라서 재조정이 조금 달라진다.
+			else //양쪽에 자식을 가질 때, successor의 부모가 node인지 아닌지에 따라서 재조정이 조금 달라진다.
 			{
-				del = search_successor(node->right);
+				del = search_successor(node->left);
 				del_origin_color = del->red_black;
-				extra_b = del->right; // successor는 왼쪽노드를 절대 가질리 없다. (그러면 그 왼쪽이 successor가 되기 때문에)
+				extra_b = del->left; // successor는 오른쪽노드를 절대 가질리 없다. (그러면 그 오른쪽이 successor가 되기 때문에)
 				
 				if (del->parent == node)
 					extra_b->parent = del;
 				else
 				{
-					transplant(del, del->right);
-					del->right = node->right;
-					del->right->parent = del;
+					transplant(del, del->left);
+					del->left = node->left;
+					del->left->parent = del;
 				}
 				transplant(node, del);
-				del->left = node->left;
-				del->left->parent = del;
+				del->right = node->right;
+				del->right->parent = del;
 				del->red_black = node->red_black;
 			}
 			//fix_up
@@ -455,6 +455,7 @@ class RB_tree{
 			free(node);
 			_size--;
 		}
+		nil->parent = NULL;
 		if (root == nil)
 			root = NULL;
 		insert_temp = root;
