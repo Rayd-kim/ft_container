@@ -50,9 +50,11 @@ class RB_tree{
 		_size = 0;
 	}
 
-	RB_tree(const RB_tree& other) : root(NULL), insert_temp(NULL), nil(other.nil),
-	_begin(nil), _end(nil), _comp(other._comp), _alloc(other._alloc)
+	RB_tree(const RB_tree& other) : root(NULL), insert_temp(NULL), _comp(other._comp), _alloc(other._alloc)
 	{
+		nil = nil = new Node<value_type>;
+		_begin = nil;
+		_end = nil;
 		_size = 0;
 		iterator	start(other._begin, other.nil, other.root);
 		iterator	end(other._end, other.nil, other.root);
@@ -63,14 +65,17 @@ class RB_tree{
 		}
 	}
 
+	~RB_tree()
+	{
+		clear();
+		delete nil;
+	}
+
 	RB_tree&	operator=(const RB_tree& other)
 	{
 		this->clear();
-		nil = other.nil;
 		_comp = other._comp;
 		_alloc = other._alloc;
-		_begin = nil;
-		_end = nil;
 
 		iterator	start(other._begin, other.nil, other.root);
 		iterator	end(other._end, other.nil, other.root);
@@ -452,7 +457,8 @@ class RB_tree{
 			//fix_up
 			if (del_origin_color == BLACK)
 				fixed_up_rb_tree(extra_b);
-			free(node);
+			// free(node);
+			delete node;
 			_size--;
 		}
 		nil->parent = NULL;
