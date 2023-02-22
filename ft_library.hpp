@@ -286,7 +286,7 @@ namespace ft{
 	{	return !(lhs > rhs);	}
 	template <typename T1, typename T2>
 	bool	operator>(const ft::pair<T1, T2>& lhs, const ft::pair<T1, T2>& rhs)
-	{	return (lhs > rhs);	}
+	{	return (rhs < lhs);	}
 	template <typename T1, typename T2>
 	bool	operator>=(const ft::pair<T1, T2>& lhs, const ft::pair<T1, T2>& rhs)
 	{	return !(lhs < rhs);	}
