@@ -205,7 +205,14 @@ class map{
 			bool operator()(const value_type& lhs, const value_type& rhs) const{
 				return comp(lhs.first, rhs.first);
 			}
+		friend	class map;
 	};
+	
+	key_compare	key_comp() const
+	{	return _comp;	}
+
+	value_compare	value_comp() const
+	{	return value_compare(_comp);	}
 	
 
 	iterator	begin()
